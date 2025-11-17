@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Simple Timer + Task List</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: #f4f4f4;
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        height: 100vh;
+    }
+
+    /* TIMER BOX */
+    .timer-box {
+        background: white;
+        width: 350px;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .time-display {
+        font-size: 40px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .label-row {
+        font-size: 12px;
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 15px;
+        color: gray;
+        letter-spacing: 1px;
+    }
+
+    /* Buttons */
+    .controls {
+        display: flex;
+        justify-content: space-around;
+    }
+
+    button {
+        border: none;
+        padding: 10px 18px;
+        border-radius: 50px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .play {
+        background: #0a66c2;
+        color: white;
+    }
+
+    .reset {
+        background: #eaeaea;
+    }
+
+    .break {
+        background: #ffd27f;
+    }
+
+    /* TASK LIST SECTION */
+    .task-box {
+        width: 350px;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    .task-input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+
+    .task {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    .task input[type="checkbox"] {
+        margin-right: 10px;
+    }
+</style>
+</head>
+
+<body>
+
+<!-- TIMER BOX -->
+<div class="timer-box">
+    <div class="time-display" id="time">00:00:00</div>
+
+    <div class="label-row">
+        <span>hr</span>
+        <span>min</span>
+        <span>sec</span>
+    </div>
+
+    <div class="controls">
+        <button class="play" id="startPauseBtn">▶ Start</button>
+        <button class="reset" id="resetBtn">⟳ Reset</button>
+        <button class="break" id="breakBtn">Break</button>
+    </div>
+</div>
+
+<!-- TASK LIST BOX -->
+<div class="task-box">
+    <input type="text" id="taskInput" class="task-input" placeholder="Write your task and press Enter...">
+
+    <div id="tasks"></div>
+</div>
+
+<script>
+/* ---------------- TIMER SCRIPT ---------------- */
+
+let seconds = 0;
+let timer = null;
+let running = false;
+
+function updateDisplay() {
+    let hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
+    let mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+    let secs = String(seconds % 60).padStart(2, '0');
+    document.getElementById("time").textContent = `${hrs}:${mins}:${secs}`;
+}
+
+document.getElementById("startPauseBtn").onclick = function () {
+    if (!running) {
+        timer = setInterval(() => {
+            seconds++;
+            updateDisplay();
+        }, 1000);
+
+        running = true;
+        this.textContent = "⏸ Pause";
+    } else {
+        clearInterval(timer);
+        running = false;
+        this.textContent = "▶ Start";
+    }
+};
+
+document.getElementById("resetBtn").onclick = function () {
+    clearInterval(timer);
+    seconds = 0;
+    running = false;
+    updateDisplay();
+    document.getElementById("startPauseBtn").textContent = "▶ Start";
+};
+
+document.getElementById("breakBtn").onclick = function () {
+    let mins = prompt("Enter break duration in minutes:");
+
+    if (mins && !isNaN(mins)) {
+        seconds = mins * 60;
+        updateDisplay();
+        clearInterval(timer);
+        running = false;
+        document.getElementById("startPauseBtn").textContent = "▶ Start";
+    }
+};
+
+/* ---------------- TASK LIST SCRIPT ---------------- */
+
+document.getElementById("taskInput").addEventListener("keypress", function (e) {
+    if (e.key === "Enter" && this.value.trim() !== "") {
+
+        let taskDiv = document.createElement("div");
+        taskDiv.className = "task";
+
+        taskDiv.innerHTML = `
+            <input type="checkbox">
+            <span>${this.value}</span>
+        `;
+
+        document.getElementById("tasks").appendChild(taskDiv);
+        this.value = "";
+    }
+});
+</script>
+
+</body>
+</html>
